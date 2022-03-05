@@ -2,8 +2,6 @@
 TODO:
     처음 로딩된 블로그 15개에 대해서 서로 이웃 추가하기
 '''
-from doctest import DebugRunner
-from xml.dom.minidom import Document
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options

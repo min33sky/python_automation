@@ -1,17 +1,12 @@
 '''
 TODO:
-    1. 네이버 로그인 자동화
-    2. 모바일 페이지 검색 후 VIEW탭으로 이동 - 검색 옵션은 블로그, 최신순
-    3. 첫번째 포스팅 블로그 아이디 클릭
-    4. 이웃 추가 버튼 클릭 (가능할 때만)
-    5. 서로 이웃 버튼 클릭 (가능할 때만)
-    6. 이웃 신청 멘트 작성
-    7. 확인 버튼 클릭
+    n명 이웃 추가하기
 '''
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 import time
 import pyautogui
@@ -24,6 +19,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 # ***** 1. Naver Login Start........................................................... *****
 naver_id = pyautogui.prompt('아이디 입력: ')
 naver_password = pyautogui.prompt('비밀번호 입력: ')
+
+people_to_add = int(pyautogui.prompt('추가할 이웃의 수를 입력: '))
+
 
 # 브라우저 꺼짐 방지
 chrome_options = Options()
@@ -51,7 +49,7 @@ id_dom.click()
 # ? 입력한 아이디, 패스워드 값을 클립보드에 복사한 후 Input에 붙여넣기한다.
 pyperclip.copy(naver_id)
 pyautogui.hotkey('ctrl', 'v')
-time.sleep(2)
+time.sleep(1)
 
 
 # 패스워드 입력창
@@ -59,12 +57,12 @@ password = driver.find_element(By.CSS_SELECTOR, '#pw')
 password.click()
 pyperclip.copy(naver_password)
 pyautogui.hotkey('ctrl', 'v')
-time.sleep(2)
+time.sleep(1)
 
 # 로그인 버튼 클릭
 login_button = driver.find_element(By.CSS_SELECTOR, '#log\.login')
 login_button.click()
-time.sleep(2)
+time.sleep(1)
 
 
 # ***** 2. 블로그의 view 탭으로 이동 후 최신순으로 필터링 *****
@@ -72,25 +70,57 @@ time.sleep(2)
 driver.get(f'https://m.search.naver.com/search.naver?where=m_blog&sm=tab_viw.blog&query=%EB%B8%94%EB%A1%9C%EA%B7%B8&nso=so%3Add%2Cp%3Aall')
 time.sleep(1)
 
-# ***** 3. 제일 첫 번째 블로그 들어가기 *****
+# ***** 3. 블로그들 정보 가져오기 *****
 
-driver.find_element(By.CSS_SELECTOR, 'a.sub_txt.sub_name').click()
+count = 0   # 서로 이웃 추가를 설공적으로 한 블로그의 수
+index = 0   # 현재 이웃을 추가할 블로그의 인덱스
 
 
-# 서로 이웃 추가가 가능할 때만 (이미 이웃이거나 상대방이 거부할경우는 ㄴㄴㄴ)
-try:
-    # ***** 4. 이웃 추가 버튼 클릭 *****
-    driver.find_element(By.CSS_SELECTOR, 'button.add_buddy_btn__oGR_B').click()
+while count < people_to_add:
 
-    # ***** 5. 서로이웃 버튼 클릭 *****
-    driver.find_element(By.CSS_SELECTOR, '#bothBuddyRadio').click()
+    # ? 스크롤을 따로 신경쓸 필요가 없다. (검색 과정에서 스크롤이 자동으로 내려가 인피니트 로딩을 한다.)
 
-    # ***** 6. 이웃멘트 작성  *****
-    textarea = driver.find_element(By.CSS_SELECTOR, 'textarea#inviteMessage')
-    textarea.clear()
-    textarea.send_keys('반갑습니다. 서로이웃 신청해요...')
+    blogs = driver.find_elements(By.CSS_SELECTOR, 'a.sub_txt.sub_name')
+    time.sleep(1)
 
-    # ***** 7. 확인 버튼 클릭 *****
-    driver.find_element(By.CSS_SELECTOR, 'a.btn_ok').click()
-except:
-    pass
+    blog = blogs[index]  # 서로 이웃 추가를 할 블로그
+
+    # 새 창으로 열기
+    blog.send_keys(Keys.CONTROL + '\n')
+
+    # 새창으로 드라이버 전환
+    all_windows = driver.window_handles
+    driver.switch_to.window(all_windows[1])
+    time.sleep(1)
+
+    try:
+        # ***** 4. 이웃 추가 버튼 클릭 *****
+        driver.find_element(
+            By.CSS_SELECTOR, 'button.add_buddy_btn__oGR_B').click()
+
+        # ***** 5. 서로이웃 버튼 클릭 *****
+        driver.find_element(By.CSS_SELECTOR, '#bothBuddyRadio').click()
+        time.sleep(1)
+
+        # ***** 6. 이웃멘트 작성  *****
+        textarea = driver.find_element(
+            By.CSS_SELECTOR, '.textarea_t1')
+        textarea.clear()
+        textarea.send_keys('반갑습니다. 서로이웃 신청해요...')
+        time.sleep(1)
+
+        # ***** 7. 확인 버튼 클릭 *****
+        driver.find_element(By.CSS_SELECTOR, '.btn_ok').click()
+        time.sleep(1)
+
+        count = count + 1
+    except:
+        pass
+
+    index = index + 1
+
+    # 새창 닫기
+    driver.close()
+
+    # 기존 탭으로 드라이버 전환
+    driver.switch_to.window(all_windows[0])
