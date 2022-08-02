@@ -1,9 +1,14 @@
 import os
 import shutil
 
+'''
+    파일 폴더 자동화
+'''
+
+
 TARGET_FOLDER = 'C:\\Users\\사 용 자 명 넣 는 곳\\Downloads\\'
-IMAGE_EXT =  ['.jpg', '.jpeg', '.gif', '.webp', '.png']
-ZIP_EXT =  ['.zip', '.rar', '7z', 'alz']
+IMAGE_EXT = ['.jpg', '.jpeg', '.gif', '.webp', '.png']
+ZIP_EXT = ['.zip', '.rar', '7z', 'alz']
 
 # 파일들을 다 가져와보자
 for file in os.listdir(TARGET_FOLDER):

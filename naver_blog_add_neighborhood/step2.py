@@ -105,7 +105,7 @@ for blog in blogs:
     except:
         pass
 
-    # 새창 닫기
+    # 새 탭 닫기
     driver.close()
 
     # 기존 탭으로 드라이버 전환
