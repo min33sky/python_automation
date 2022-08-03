@@ -11,17 +11,19 @@ from selenium.webdriver.common.keys import Keys
 import time
 import pyautogui
 import pyperclip    # 클립보드 모듈
+import os
 
 # 크롬 드라이버 자동 업데이트
 from webdriver_manager.chrome import ChromeDriverManager
 
-UI_PATH = "naver_blog_favorite\\my_ui.ui"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UI_PATH = "my_ui.ui"
 
 
 class MainDialog(QDialog):
     def __init__(self):
         QDialog.__init__(self, None)
-        uic.loadUi(UI_PATH, self)
+        uic.loadUi(os.path.join(BASE_DIR, UI_PATH), self)
 
         self.start_btn.clicked.connect(self.main)
         self.slider.valueChanged.connect(self.change_slider_value)
